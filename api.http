@@ -3,22 +3,33 @@ GET http://localhost:3000/tasks
 Accept: application/json
 
 ### Create a new task
+# @prompt title Task title
 POST http://localhost:3000/tasks
 Content-Type: application/json
 Accept: application/json
 
 {
-  "title": "New Task"
+  "title": "{{title}}"
 }
 
-### Update a task
+### Update title
+# @prompt id Task ID
+# @prompt title Task title
+PUT http://localhost:3000/tasks/{{id}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "{{title}}"
+}
+
+### Set task done
 # @prompt id Task ID
 PUT http://localhost:3000/tasks/{{id}}
 Content-Type: application/json
 Accept: application/json
 
 {
-  "title": "Updated Task Title",
   "done": true
 }
 

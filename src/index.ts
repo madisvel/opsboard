@@ -1,5 +1,17 @@
 import express from "express";
 import crypto from "crypto";
+import { z } from "zod";
+
+import type { Request, Response, NextFunction } from "express";
+
+const TaskCreateSchema = z.object({
+  title: z.string().trim().min(1, "Title must be at least 1 character"),
+});
+
+const TaskUpdateSchema = z.object({
+  title: z.string().trim().min(1, "Title, if present, must be at least 1 character").optional(),
+  done: z.boolean().optional(),
+});
 
 type Task = {
   id: string;
@@ -12,10 +24,24 @@ const taskMap = new Map<string, Task>();
 taskMap.set("1", { id: "1", title: "Task 1", done: false });
 taskMap.set("2", { id: "2", title: "Task 2", done: true });
 
-const app = express();
-const port = 3000;
+function validateBody<T>(schema: z.ZodType<T>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json(z.treeifyError(result.error));
+    }
+    req.body = result.data;
+    next();
+  };
+}
 
+const app = express();
 app.use(express.json());
+
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -25,14 +51,10 @@ app.get("/tasks", (req, res) => {
   res.json(Array.from(taskMap.values()));
 });
 
-app.post("/tasks", (req, res) => {
+app.post("/tasks", validateBody(TaskCreateSchema), (req, res) => {
   const id = crypto.randomUUID();
 
-  const title = String(req.body?.title ?? "").trim();
-
-  if (!title) {
-    return res.status(400).json({ error: "Title is required" });
-  }
+  const { title } = req.body;
 
   const newTask: Task = { id: id, done: false, title: title };
   taskMap.set(id, newTask);
@@ -40,7 +62,7 @@ app.post("/tasks", (req, res) => {
   res.status(201).json(newTask);
 });
 
-app.put("/tasks/:id", (req, res) => {
+app.put("/tasks/:id", validateBody(TaskUpdateSchema), (req, res) => {
   const taskId = req.params.id;
 
   const task = taskMap.get(taskId);
@@ -53,8 +75,8 @@ app.put("/tasks/:id", (req, res) => {
 
   const updatedTask: Task = {
     ...task,
-    title: typeof title === "string" ? title : task.title,
-    done: typeof done === "boolean" ? done : task.done,
+    title: title ?? task.title,
+    done: done ?? task.done,
   };
 
   taskMap.set(taskId, updatedTask);
@@ -70,8 +92,4 @@ app.delete("/tasks/:id", (req, res) => {
   }
 
   res.status(404).json({ error: `No task with id ${taskId}` });
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
 });
