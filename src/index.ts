@@ -40,6 +40,28 @@ app.post("/tasks", (req, res) => {
   res.status(201).json(newTask);
 });
 
+app.put("/tasks/:id", (req, res) => {
+  const taskId = req.params.id;
+
+  const task = taskMap.get(taskId);
+
+  if (!task) {
+    return res.status(404).send(`No task with id ${taskId} found`);
+  }
+
+  const { title, done } = req.body;
+
+  const updatedTask: Task = {
+    ...task,
+    title: typeof title === "string" ? title : task.title,
+    done: typeof done === "boolean" ? done : task.done,
+  };
+
+  taskMap.set(taskId, updatedTask);
+
+  res.status(200).json(updatedTask);
+});
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

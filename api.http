@@ -1,0 +1,26 @@
+### Get all tasks
+GET http://localhost:3000/tasks
+Accept: application/json
+
+### Create a new task
+POST http://localhost:3000/tasks
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "New Task"
+}
+
+### Update a task
+PUT http://localhost:3000/tasks/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Updated Task Title",
+  "done": true
+}
+
+### Get root endpoint
+GET http://localhost:3000/
+Accept: text/plain
