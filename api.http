@@ -22,6 +22,10 @@ Accept: application/json
   "done": true
 }
 
+### Delete a task
+# @prompt id Task ID
+DELETE http://localhost:3000/tasks/{{id}}
+
 ### Get root endpoint
 GET http://localhost:3000/
 Accept: text/plain

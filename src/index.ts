@@ -62,6 +62,16 @@ app.put("/tasks/:id", (req, res) => {
   res.status(200).json(updatedTask);
 });
 
+app.delete("/tasks/:id", (req, res) => {
+  const taskId = req.params.id;
+
+  if (taskMap.delete(taskId)) {
+    return res.sendStatus(204);
+  }
+
+  res.status(404).json({ error: `No task with id ${taskId}` });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
