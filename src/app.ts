@@ -19,7 +19,7 @@ type Task = {
   done: boolean;
 };
 
-const taskMap = new Map<string, Task>();
+export const taskMap = new Map<string, Task>();
 
 taskMap.set("1", { id: "1", title: "Task 1", done: false });
 taskMap.set("2", { id: "2", title: "Task 2", done: true });
@@ -35,16 +35,11 @@ function validateBody<T>(schema: z.ZodType<T>) {
   };
 }
 
-const app = express();
+export const app = express();
 app.use(express.json());
 
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
-
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello World!!!");
 });
 
 app.get("/tasks", (req, res) => {
